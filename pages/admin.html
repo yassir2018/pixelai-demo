@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI Admin</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a; --card: #141414;
+      --border: #2a2a2a; --text: #fff; --text2: #a0a0a0; --text3: #555;
+      --accent: #f5c842; --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+
+    /* ── Login Screen ── */
+    #loginScreen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .login-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 48px 40px; width: 100%; max-width: 400px; text-align: center;
+    }
+    .login-box .logo { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+    .login-box .sub { color: var(--text2); font-size: 14px; margin-bottom: 32px; }
+    .login-box input {
+      width: 100%; padding: 12px 16px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-size: 15px; margin-bottom: 16px;
+    }
+    .login-box input:focus { outline: none; border-color: var(--accent); }
+    .btn-login {
+      width: 100%; padding: 13px; background: var(--accent); color: #000;
+      font-weight: 700; font-size: 15px; border-radius: 10px;
+      transition: opacity 0.2s;
+    }
+    .btn-login:hover { opacity: 0.9; }
+    #loginError { color: var(--red); font-size: 13px; margin-top: 12px; display: none; }
+
+    /* ── Admin Layout ── */
+    #adminPanel { display: none; }
+    .admin-nav {
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 0 24px; display: flex; align-items: center; gap: 24px; height: 58px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-nav .logo { font-weight: 900; color: var(--accent); font-size: 20px; margin-inline-end: auto; }
+    .nav-tab {
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      color: var(--text2); background: none; transition: all 0.2s;
+    }
+    .nav-tab.active, .nav-tab:hover { background: var(--bg3); color: var(--text); }
+    .nav-tab.active { color: var(--accent); }
+    .btn-logout {
+      padding: 6px 14px; background: var(--bg3); border-radius: 8px;
+      font-size: 13px; color: var(--text2); transition: all 0.2s;
+    }
+    .btn-logout:hover { color: var(--red); }
+
+    .admin-body { padding: 32px 24px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Stats Cards ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px; margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px; text-align: center;
+    }
+    .stat-card .s-val { font-size: 28px; font-weight: 800; color: var(--accent); }
+    .stat-card .s-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+    /* ── Section Card ── */
+    .section-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .section-head {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-weight: 600; font-size: 15px;
+    }
+    .section-head .actions { display: flex; gap: 8px; }
+
+    /* ── Tables ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      padding: 10px 16px; text-align: start; color: var(--text2);
+      font-weight: 500; border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg3); }
+    tbody td { padding: 10px 16px; vertical-align: middle; white-space: nowrap; }
+
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 100px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+    .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+    .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .badge-gold { background: rgba(245,200,66,0.15); color: var(--accent); }
+
+    /* ── Action Buttons ── */
+    .act-btn {
+      padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      background: var(--bg3); color: var(--text2); transition: all 0.15s;
+    }
+    .act-btn:hover { color: var(--text); background: var(--border); }
+    .act-btn.danger:hover { color: var(--red); }
+    .act-btn.warn:hover { color: var(--accent); }
+
+    /* ── Logs ── */
+    .log-list { padding: 16px 20px; font-family: monospace; font-size: 12px; }
+    .log-entry { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text2); }
+    .log-entry .log-time { color: var(--text3); margin-inline-end: 8px; }
+    .log-entry.error .log-msg { color: var(--red); }
+    .log-entry.warn .log-msg { color: var(--accent); }
+
+    /* ── Inputs ── */
+    .inline-input {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: 4px 8px; font-size: 13px; width: 80px;
+    }
+    .inline-input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Btn styles ── */
+    .btn-sm {
+      padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn-primary-sm { background: var(--green); color: #000; }
+    .btn-danger-sm { background: var(--red); color: #fff; }
+    .btn-accent-sm { background: var(--accent); color: #000; }
+    .btn-sm:hover { opacity: 0.85; }
+
+    /* ── Pagination ── */
+    .pagination { display: flex; gap: 8px; justify-content: center; padding: 16px; }
+    .page-btn {
+      padding: 6px 12px; border-radius: 6px; font-size: 13px;
+      background: var(--bg3); color: var(--text2);
+    }
+    .page-btn.active { background: var(--accent); color: #000; font-weight: 700; }
+    .page-btn:hover:not(.active) { background: var(--border); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px;
+      font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(10px);
+      transition: all 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    /* ── Cleanup Result ── */
+    .cleanup-result {
+      background: var(--bg3); border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; color: var(--text2); margin-top: 12px; display: none;
+    }
+
+    /* ── Content Editor ── */
+    .editor-section { margin-bottom: 24px; }
+    .editor-section h3 {
+      font-size: 13px; font-weight: 600; color: var(--text2);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+    }
+    .editor-fields { padding: 16px 20px; display: grid; gap: 12px; }
+    .field-row { display: grid; grid-template-columns: 160px 1fr; align-items: start; gap: 12px; }
+    .field-row label { font-size: 13px; color: var(--text2); padding-top: 9px; }
+    .editor-input, .editor-textarea {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); padding: 8px 12px; font-size: 13px; font-family: inherit; width: 100%;
+    }
+    .editor-input:focus, .editor-textarea:focus { outline: none; border-color: var(--accent); }
+    .editor-textarea { resize: vertical; min-height: 70px; }
+    .img-preview {
+      width: 80px; height: 55px; border-radius: 6px; object-fit: cover;
+      border: 1px solid var(--border); vertical-align: middle; margin-inline-start: 8px;
+    }
+    .img-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .img-slot { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+    .array-row { display: flex; flex-direction: column; gap: 6px; }
+    .array-item { display: flex; gap: 6px; align-items: center; }
+    .array-item .editor-input { flex: 1; }
+    .btn-add-row { padding: 4px 10px; background: var(--bg3); border-radius: 6px; font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .btn-add-row:hover { color: var(--accent); }
+    .sticky-save {
+      position: sticky; bottom: 0; background: var(--bg2);
+      border-top: 1px solid var(--border); padding: 16px 24px;
+      display: flex; align-items: center; gap: 12px; z-index: 10;
+    }
+    .save-status { font-size: 13px; color: var(--text2); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="logo">✦ PixelAI</div>
+    <div class="sub" data-i18n="admin_panel_sub">Admin Panel — Secure Access</div>
+    <input type="password" id="pwInput" data-i18n-attr="placeholder" data-i18n="admin_password_placeholder" placeholder="Enter admin password" autocomplete="current-password">
+    <button class="btn-login" onclick="doLogin()" data-i18n="admin_login_btn">Login</button>
+    <div id="loginError" data-i18n="admin_wrong_password">Wrong password. Try again.</div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PANEL ════════════════════════════════════════════════ -->
+<div id="adminPanel">
+  <nav class="admin-nav">
+    <div class="logo">✦ PixelAI Admin</div>
+    <button class="nav-tab active" onclick="switchTab('stats', this)"><i class="fas fa-chart-bar"></i> <span data-i18n="admin_tab_stats">Stats</span></button>
+    <button class="nav-tab" onclick="switchTab('users', this)"><i class="fas fa-users"></i> <span data-i18n="admin_tab_users">Users</span></button>
+    <button class="nav-tab" onclick="switchTab('images', this)"><i class="fas fa-image"></i> <span data-i18n="admin_tab_images">Images</span></button>
+    <button class="nav-tab" onclick="switchTab('logs', this)"><i class="fas fa-terminal"></i> <span data-i18n="admin_tab_logs">Logs</span></button>
+    <button class="nav-tab" onclick="switchTab('pages', this)"><i class="fas fa-edit"></i> <span data-i18n="admin_tab_pages">Pages</span></button>
+    <button class="nav-tab" onclick="switchTab('style', this)"><i class="fas fa-paint-brush"></i> <span data-i18n="admin_tab_style">Style</span></button>
+    <!-- Language switcher -->
+    <div style="display:flex;gap:4px;margin-inline-start:8px">
+      <button onclick="adminSetLang('ar')" style="padding:4px 8px;border-radius:6px;background:var(--bg3);color:var(--text2);font-size:12px;border:1px solid var(--border)" id="adminLangAr">عربي</button>
+      <button onclick="adminSetLang('en')" style="padding:4px 8px;border-radius:6px;background:var(--bg3);color:var(--text2);font-size:12px;border:1px solid var(--border)" id="adminLangEn">EN</button>
+      <button onclick="adminSetLang('fr')" style="padding:4px 8px;border-radius:6px;background:var(--bg3);color:var(--text2);font-size:12px;border:1px solid var(--border)" id="adminLangFr">FR</button>
+    </div>
+    <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> <span data-i18n="admin_logout">Logout</span></button>
+  </nav>
+
+  <div class="admin-body">
+
+    <!-- ── STATS TAB ── -->
+    <div class="tab-panel active" id="tab-stats">
+      <div class="stats-row" id="statsRow">
+        <div class="stat-card"><div class="s-val" id="st-users">—</div><div class="s-label" data-i18n="admin_total_users">Total Users</div></div>
+        <div class="stat-card"><div class="s-val" id="st-active">—</div><div class="s-label" data-i18n="admin_active_today">Active Today</div></div>
+        <div class="stat-card"><div class="s-val" id="st-img-today">—</div><div class="s-label" data-i18n="admin_images_today">Images Today</div></div>
+        <div class="stat-card"><div class="s-val" id="st-img-total">—</div><div class="s-label" data-i18n="admin_total_images">Total Images</div></div>
+        <div class="stat-card"><div class="s-val" id="st-uploads-mb">—</div><div class="s-label" data-i18n="admin_uploads_mb">Uploads MB</div></div>
+        <div class="stat-card"><div class="s-val" id="st-outputs-mb">—</div><div class="s-label" data-i18n="admin_outputs_mb">Outputs MB</div></div>
+        <div class="stat-card"><div class="s-val" id="st-errors">—</div><div class="s-label" data-i18n="admin_errors_today">Errors Today</div></div>
+      </div>
+
+      <!-- Cleanup -->
+      <div class="section-card">
+        <div class="section-head">
+          <span><i class="fas fa-trash-alt" style="color:var(--red);margin-inline-end:8px"></i><span data-i18n="admin_cleanup">Cleanup Old Outputs</span></span>
+          <button class="btn-sm btn-danger-sm" onclick="runCleanup()" data-i18n="admin_cleanup_btn">Delete outputs &gt; 7 days</button>
+        </div>
+        <div class="cleanup-result" id="cleanupResult"></div>
+      </div>
+    </div>
+
+    <!-- ── USERS TAB ── -->
+    <div class="tab-panel" id="tab-users">
+      <div class="section-card">
+        <div class="section-head">
+          <span><i class="fas fa-users" style="color:var(--accent);margin-inline-end:8px"></i><span data-i18n="admin_users_title">Users</span></span>
+          <div class="actions">
+            <input type="text" class="inline-input" style="width:180px" id="userSearch" data-i18n-attr="placeholder" data-i18n="admin_search_placeholder" placeholder="Search email..." oninput="searchUsers()">
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="admin_col_id">ID</th><th data-i18n="admin_col_email">Email</th><th data-i18n="admin_col_username">Username</th><th data-i18n="admin_col_plan">Plan</th>
+                <th data-i18n="admin_col_credits">Credits</th><th data-i18n="admin_col_images">Images</th><th data-i18n="admin_col_status">Status</th>
+                <th data-i18n="admin_col_created">Created</th><th data-i18n="admin_col_last_active">Last Active</th><th data-i18n="admin_col_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="usersPagination"></div>
+      </div>
+    </div>
+
+    <!-- ── IMAGES TAB ── -->
+    <div class="tab-panel" id="tab-images">
+      <div class="section-card">
+        <div class="section-head">
+          <span><i class="fas fa-image" style="color:var(--accent);margin-inline-end:8px"></i><span data-i18n="admin_images_title">Recent Processed Images</span></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="admin_col_id">ID</th><th data-i18n="admin_col_user">User</th><th data-i18n="admin_col_original_name">Original Name</th><th data-i18n="admin_col_mode">Mode</th>
+                <th data-i18n="admin_col_scale">Scale</th><th data-i18n="admin_col_credits">Credits</th><th data-i18n="admin_col_time">Time (s)</th><th data-i18n="admin_col_date">Date</th>
+              </tr>
+            </thead>
+            <tbody id="imagesTbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="imagesPagination"></div>
+      </div>
+    </div>
+
+    <!-- ── PAGES EDITOR TAB ── -->
+    <div class="tab-panel" id="tab-pages">
+      <div id="pagesEditorWrap">
+        <div style="text-align:center;padding:48px;color:var(--text3)">Loading content...</div>
+      </div>
+      <div class="sticky-save">
+        <button class="btn-sm btn-accent-sm" onclick="saveContent()"><i class="fas fa-save"></i> <span data-i18n="admin_save_all">Save All Changes</span></button>
+        <span class="save-status" id="saveStatus"></span>
+        <button class="btn-sm" style="background:var(--bg3);margin-inline-start:auto" onclick="previewSite()"><i class="fas fa-external-link-alt"></i> <span data-i18n="admin_preview_site">Preview Site</span></button>
+      </div>
+    </div>
+
+    <!-- ── LOGS TAB ── -->
+    <div class="tab-panel" id="tab-logs">
+      <div class="section-card">
+        <div class="section-head">
+          <span><i class="fas fa-terminal" style="color:var(--accent);margin-inline-end:8px"></i><span data-i18n="admin_logs_title">Recent Error Logs</span></span>
+          <button class="btn-sm btn-accent-sm" onclick="loadLogs()"><i class="fas fa-sync"></i> <span data-i18n="admin_refresh">Refresh</span></button>
+        </div>
+        <div class="log-list" id="logList"><div style="color:var(--text3);padding:20px 0;text-align:center">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- ── STYLE EDITOR TAB ── -->
+    <div class="tab-panel" id="tab-style">
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start">
+
+        <!-- CSS Editor -->
+        <div class="section-card">
+          <div class="section-head">
+            <span><i class="fas fa-code" style="color:var(--accent);margin-inline-end:8px"></i><span data-i18n="admin_css_editor">Custom CSS Editor</span></span>
+            <div class="actions">
+              <button class="btn-sm" onclick="resetCss()" style="background:var(--bg3)"><i class="fas fa-undo"></i> <span data-i18n="admin_reset">Reset</span></button>
+              <button class="btn-sm btn-accent-sm" onclick="saveCss()"><i class="fas fa-save"></i> <span data-i18n="admin_save_css">Save CSS</span></button>
+            </div>
+          </div>
+          <div style="padding:0">
+            <textarea id="cssEditor" spellcheck="false" style="
+              width:100%; min-height:520px; resize:vertical;
+              background:#0d0d0d; color:#e8e8e8;
+              font-family:'Fira Code','Courier New',monospace; font-size:13px; line-height:1.7;
+              border:none; padding:20px;
+              tab-size:2; outline:none;
+            " placeholder="/* Write any CSS here — it will be applied to all pages */
+.home-hero-title { font-size: 40px; }
+body { font-family: 'Arial', sans-serif; }
+.btn-hero-primary { background: #ff5500; }
+"></textarea>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:12px;color:var(--text3)" data-i18n="admin_css_hint">Changes apply to all pages after Save</span>
+            <span id="cssStatus" style="font-size:12px;color:var(--green)"></span>
+          </div>
+        </div>
+
+        <!-- Quick Controls Panel -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- Typography -->
+          <div class="section-card">
+            <div class="section-head" style="font-size:13px">
+              <span><i class="fas fa-font" style="color:var(--accent);margin-inline-end:6px"></i><span data-i18n="admin_typography">Typography</span></span>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_font_family">Font Family</label>
+                <select id="qc-font" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px">
+                  <option value="">— unchanged —</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Tajawal">Tajawal (Arabic)</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="DM Sans">DM Sans</option>
+                  <option value="Space Grotesk">Space Grotesk</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_font_size">Base Font Size</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-fontsize" min="12" max="20" value="16" style="flex:1">
+                  <span id="qc-fontsize-val" style="font-size:12px;color:var(--text2);width:32px">16px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_hero_size">Hero Title Size</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-hero-size" min="24" max="80" value="48" style="flex:1">
+                  <span id="qc-hero-size-val" style="font-size:12px;color:var(--text2);width:32px">48px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colors -->
+          <div class="section-card">
+            <div class="section-head" style="font-size:13px">
+              <span><i class="fas fa-palette" style="color:var(--accent);margin-inline-end:6px"></i><span data-i18n="admin_colors_panel">Colors</span></span>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <label style="font-size:12px;color:var(--text2)" data-i18n="admin_accent_color">Accent Color</label>
+                <input type="color" id="qc-accent" value="#f5c842" style="width:40px;height:28px;border:none;background:none;cursor:pointer;border-radius:4px">
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <label style="font-size:12px;color:var(--text2)" data-i18n="admin_bg_color">Background</label>
+                <input type="color" id="qc-bg" value="#000000" style="width:40px;height:28px;border:none;background:none;cursor:pointer;border-radius:4px">
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <label style="font-size:12px;color:var(--text2)" data-i18n="admin_text_color">Text Color</label>
+                <input type="color" id="qc-text" value="#ffffff" style="width:40px;height:28px;border:none;background:none;cursor:pointer;border-radius:4px">
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <label style="font-size:12px;color:var(--text2)" data-i18n="admin_btn_color">Button Color</label>
+                <input type="color" id="qc-btn" value="#f5c842" style="width:40px;height:28px;border:none;background:none;cursor:pointer;border-radius:4px">
+              </div>
+            </div>
+          </div>
+
+          <!-- Spacing -->
+          <div class="section-card">
+            <div class="section-head" style="font-size:13px">
+              <span><i class="fas fa-expand-alt" style="color:var(--accent);margin-inline-end:6px"></i><span data-i18n="admin_spacing">Spacing</span></span>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_section_padding">Section Padding (top/bottom)</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-section-pad" min="20" max="160" value="100" style="flex:1">
+                  <span id="qc-section-pad-val" style="font-size:12px;color:var(--text2);width:36px">100px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_hero_padding">Hero Top Padding</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-hero-pad" min="20" max="200" value="80" style="flex:1">
+                  <span id="qc-hero-pad-val" style="font-size:12px;color:var(--text2);width:36px">80px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_border_radius">Card Border Radius</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-radius" min="0" max="32" value="20" style="flex:1">
+                  <span id="qc-radius-val" style="font-size:12px;color:var(--text2);width:36px">20px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_container_width">Container Width</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-container" min="900" max="1600" value="1200" style="flex:1">
+                  <span id="qc-container-val" style="font-size:12px;color:var(--text2);width:44px">1200px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_card_padding">Card Padding</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-card-pad" min="8" max="48" value="20" style="flex:1">
+                  <span id="qc-card-pad-val" style="font-size:12px;color:var(--text2);width:36px">20px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_table_padding">Table Cell Padding</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-table-pad" min="4" max="20" value="10" style="flex:1">
+                  <span id="qc-table-pad-val" style="font-size:12px;color:var(--text2);width:36px">10px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_nav_height">Nav Height</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-nav-height" min="40" max="80" value="58" style="flex:1">
+                  <span id="qc-nav-height-val" style="font-size:12px;color:var(--text2);width:36px">58px</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:4px" data-i18n="admin_body_padding">Side Padding</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="range" id="qc-body-pad" min="0" max="48" value="24" style="flex:1">
+                  <span id="qc-body-pad-val" style="font-size:12px;color:var(--text2);width:36px">24px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-sm btn-accent-sm" style="width:100%;padding:12px" onclick="applyQuickControls()">
+            <i class="fas fa-magic"></i> <span data-i18n="admin_generate_css">Generate & Apply CSS</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/translations.js"></script>
+
+<!-- Edit Credits Modal (inline) -->
+<div id="creditsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9000;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:320px;text-align:center;">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px" data-i18n="admin_edit_credits">Edit Credits</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px" id="creditsModalEmail"></div>
+    <input type="number" class="inline-input" id="creditsInput" style="width:100%;margin-bottom:16px;padding:10px" min="0">
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn-sm btn-accent-sm" onclick="saveCredits()" data-i18n="admin_save">Save</button>
+      <button class="btn-sm" style="background:var(--bg3)" onclick="closeCreditsModal()" data-i18n="admin_cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = '';  // same origin
+  let token = localStorage.getItem('pixelai_admin_token') || '';
+  let usersPage = 1, imagesPage = 1;
+  let editingUserId = null;
+  let allUsers = [];
+
+  // ── Auth ─────────────────────────────────────────────────────────
+  async function doLogin() {
+    const pw = document.getElementById('pwInput').value;
+    const err = document.getElementById('loginError');
+    err.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      token = data.token;
+      localStorage.setItem('pixelai_admin_token', token);
+      showPanel();
+    } catch (e) {
+      err.textContent = e.message;
+      err.style.display = 'block';
+    }
+  }
+
+  function doLogout() {
+    token = '';
+    localStorage.removeItem('pixelai_admin_token');
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+
+  document.getElementById('pwInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // Auto-login if token exists
+  if (token) {
+    showPanel();
+  }
+
+  function showPanel() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadStats();
+    loadUsers();
+    loadContentEditor();
+    loadImages();
+    loadLogs();
+    loadCssEditor();
+  }
+
+  // ── Tab Switching ─────────────────────────────────────────────────
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── API Helper ────────────────────────────────────────────────────
+  async function api(path, opts = {}) {
+    // Don't set Content-Type for FormData (browser sets it with boundary)
+    const isFormData = opts.body instanceof FormData;
+    const headers = {
+      'Authorization': 'Bearer ' + token,
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(opts.headers || {})
+    };
+    const res = await fetch('/api/admin' + path, { ...opts, headers });
+    if (res.status === 401) { doLogout(); throw new Error(t('admin_session_expired')); }
+    return res;
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const res = await api('/stats');
+      const d = await res.json();
+      document.getElementById('st-users').textContent = d.total_users ?? '—';
+      document.getElementById('st-active').textContent = d.active_today ?? '—';
+      document.getElementById('st-img-today').textContent = d.images_today ?? '—';
+      document.getElementById('st-img-total').textContent = d.images_total ?? '—';
+      document.getElementById('st-uploads-mb').textContent = (d.storage_uploads_mb ?? 0).toFixed(1);
+      document.getElementById('st-outputs-mb').textContent = (d.storage_outputs_mb ?? 0).toFixed(1);
+      document.getElementById('st-errors').textContent = d.processing_errors_today ?? '—';
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── Cleanup ───────────────────────────────────────────────────────
+  async function runCleanup() {
+    if (!confirm(t('admin_cleanup_confirm'))) return;
+    try {
+      const res = await api('/cleanup', { method: 'DELETE' });
+      const d = await res.json();
+      const el = document.getElementById('cleanupResult');
+      el.style.display = 'block';
+      el.textContent = `Deleted ${d.deleted_count} files, freed ${d.freed_mb.toFixed(2)} MB`;
+      showToast(t('admin_cleanup_complete'), 'success');
+      loadStats();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── Users ─────────────────────────────────────────────────────────
+  async function loadUsers(page = 1) {
+    usersPage = page;
+    try {
+      const res = await api(`/users?page=${page}&limit=20`);
+      const d = await res.json();
+      allUsers = d.users || [];
+      renderUsers(allUsers);
+      renderPagination('usersPagination', page, d.total_pages || 1, p => loadUsers(p));
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function searchUsers() {
+    const q = document.getElementById('userSearch').value.toLowerCase();
+    const filtered = q ? allUsers.filter(u => u.email.toLowerCase().includes(q)) : allUsers;
+    renderUsers(filtered);
+  }
+
+  function renderUsers(users) {
+    const tbody = document.getElementById('usersTbody');
+    if (!users.length) { tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text3)">${t('admin_no_users')}</td></tr>`; return; }
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td style="color:var(--text3)">#${u.id}</td>
+        <td>${u.email}</td>
+        <td>${u.username || '—'}</td>
+        <td><span class="badge badge-${u.plan === 'pro' ? 'blue' : u.plan === 'lifetime' ? 'gold' : 'green'}">${u.plan || 'free'}</span></td>
+        <td>${u.credits ?? 0}</td>
+        <td>${u.images_count ?? 0}</td>
+        <td><span class="badge ${u.is_banned ? 'badge-red' : 'badge-green'}">${u.is_banned ? t('admin_banned') : t('admin_active_status')}</span></td>
+        <td>${fmtDate(u.created_at)}</td>
+        <td>${u.last_active ? fmtDate(u.last_active) : '—'}</td>
+        <td>
+          <button class="act-btn warn" onclick="openCreditsModal(${u.id}, '${u.email}', ${u.credits})">${t('admin_credits_action')}</button>
+          <button class="act-btn ${u.is_banned ? '' : 'danger'}" onclick="toggleBan(${u.id}, ${u.is_banned})">${u.is_banned ? t('admin_unban') : t('admin_ban')}</button>
+          <button class="act-btn danger" onclick="deleteUser(${u.id}, '${u.email}')">${t('admin_delete')}</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function toggleBan(id, isBanned) {
+    try {
+      await api(`/users/${id}/ban`, { method: 'POST', body: JSON.stringify({ ban: !isBanned }) });
+      showToast(isBanned ? t('admin_user_unbanned') : t('admin_user_banned'), 'success');
+      loadUsers(usersPage);
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function deleteUser(id, email) {
+    if (!confirm(t('admin_delete_user_confirm').replace('{email}', email))) return;
+    try {
+      await api(`/users/${id}`, { method: 'DELETE' });
+      showToast(t('admin_user_deleted'), 'success');
+      loadUsers(usersPage);
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function openCreditsModal(id, email, credits) {
+    editingUserId = id;
+    document.getElementById('creditsModalEmail').textContent = email;
+    document.getElementById('creditsInput').value = credits;
+    document.getElementById('creditsModal').style.display = 'flex';
+  }
+
+  function closeCreditsModal() {
+    document.getElementById('creditsModal').style.display = 'none';
+    editingUserId = null;
+  }
+
+  async function saveCredits() {
+    const credits = parseInt(document.getElementById('creditsInput').value);
+    if (isNaN(credits) || credits < 0) { showToast(t('admin_invalid_value'), 'error'); return; }
+    try {
+      await api(`/users/${editingUserId}/credits`, { method: 'PUT', body: JSON.stringify({ credits }) });
+      showToast(t('admin_credits_updated'), 'success');
+      closeCreditsModal();
+      loadUsers(usersPage);
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── Images ────────────────────────────────────────────────────────
+  async function loadImages(page = 1) {
+    imagesPage = page;
+    try {
+      const res = await api(`/images?page=${page}`);
+      const d = await res.json();
+      const tbody = document.getElementById('imagesTbody');
+      const imgs = d.images || [];
+      if (!imgs.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3)">${t('admin_no_images')}</td></tr>`; return; }
+      tbody.innerHTML = imgs.map(i => `
+        <tr>
+          <td style="color:var(--text3)">#${i.id}</td>
+          <td>${i.user_id ? '#' + i.user_id : `<span style="color:var(--text3)">${t('admin_guest')}</span>`}</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${i.original_name || '—'}</td>
+          <td><span class="badge badge-blue">${i.mode || 'auto'}</span></td>
+          <td>${i.scale || 4}×</td>
+          <td>${i.credits_used ?? 0}</td>
+          <td>${i.processing_time ? i.processing_time.toFixed(2) : '—'}</td>
+          <td>${fmtDate(i.created_at)}</td>
+        </tr>
+      `).join('');
+      renderPagination('imagesPagination', page, d.total_pages || 1, p => loadImages(p));
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── Logs ──────────────────────────────────────────────────────────
+  async function loadLogs() {
+    try {
+      const res = await api('/logs?limit=50');
+      const d = await res.json();
+      const el = document.getElementById('logList');
+      const logs = d.logs || [];
+      if (!logs.length) { el.innerHTML = `<div style="color:var(--text3);padding:20px 0;text-align:center">${t('admin_no_logs')}</div>`; return; }
+      el.innerHTML = logs.map(l => `
+        <div class="log-entry ${l.level || ''}">
+          <span class="log-time">${fmtDate(l.created_at)}</span>
+          <span class="badge badge-${l.level === 'error' ? 'red' : 'blue'}" style="margin-inline-end:8px">${l.level || 'info'}</span>
+          <span class="log-msg">${escHtml(l.message || '')}</span>
+        </div>
+      `).join('');
+    } catch (e) {
+      document.getElementById('logList').innerHTML = `<div style="color:var(--text3);padding:20px 0;text-align:center">${e.message}</div>`;
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────
+  function fmtDate(str) {
+    if (!str) return '—';
+    const d = new Date(str);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderPagination(containerId, current, total, callback) {
+    const el = document.getElementById(containerId);
+    if (total <= 1) { el.innerHTML = ''; return; }
+    let html = '';
+    for (let p = 1; p <= total; p++) {
+      html += `<button class="page-btn ${p === current ? 'active' : ''}" onclick="(${callback})(${p})">${p}</button>`;
+    }
+    el.innerHTML = html;
+  }
+
+  function showToast(msg, type = 'info') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Pages / Content Editor ────────────────────────────────────────
+  let siteContent = null;
+
+  async function loadContentEditor() {
+    try {
+      const res = await fetch('/api/content');
+      siteContent = res.ok ? await res.json() : {};
+    } catch { siteContent = {}; }
+    renderContentEditor();
+  }
+
+  function renderContentEditor() {
+    const wrap = document.getElementById('pagesEditorWrap');
+    if (!wrap) return;
+    const c = siteContent;
+
+    wrap.innerHTML = `
+      <!-- HERO -->
+      <div class="section-card editor-section">
+        <h3><i class="fas fa-image" style="color:var(--accent);margin-inline-end:6px"></i>Hero Section</h3>
+        <div class="editor-fields">
+          ${field('Badge Text', 'hero_badge', c.hero?.badge)}
+          ${field('Title Line 1', 'hero_title1', c.hero?.title_line1)}
+          ${field('Title Line 2', 'hero_title2', c.hero?.title_line2)}
+          ${field('Brand Name', 'hero_brand', c.hero?.brand)}
+          ${field('Subtitle', 'hero_subtitle', c.hero?.subtitle, true)}
+          ${field('Button: Free Trial', 'hero_btn_trial', c.hero?.btn_trial)}
+          ${field('Button: Buy Now', 'hero_btn_buy', c.hero?.btn_buy)}
+          ${field('Note (below buttons)', 'hero_note', c.hero?.note)}
+          <div class="field-row">
+            <label>BG Image 1</label>
+            <div>${imgField('hero_bg1', c.hero?.bg_images?.[0])}</div>
+          </div>
+          <div class="field-row">
+            <label>BG Image 2</label>
+            <div>${imgField('hero_bg2', c.hero?.bg_images?.[1])}</div>
+          </div>
+          <div class="field-row">
+            <label>BG Image 3</label>
+            <div>${imgField('hero_bg3', c.hero?.bg_images?.[2])}</div>
+          </div>
+          <div class="field-row">
+            <label>Slider BEFORE</label>
+            <div>${imgField('hero_slider_before', c.hero?.slider_before)}</div>
+          </div>
+          <div class="field-row">
+            <label>Slider AFTER</label>
+            <div>${imgField('hero_slider_after', c.hero?.slider_after)}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="section-card editor-section">
+        <h3><i class="fas fa-chart-bar" style="color:var(--accent);margin-inline-end:6px"></i>Stats Bar</h3>
+        <div class="editor-fields">
+          ${(c.stats || []).map((s, i) => `
+            <div class="field-row"><label>Stat ${i+1} Number</label><input class="editor-input" id="stat_num_${i}" value="${esc(s.number)}"></div>
+            <div class="field-row"><label>Stat ${i+1} Label</label><input class="editor-input" id="stat_lbl_${i}" value="${esc(s.label)}"></div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- FEATURES -->
+      <div class="section-card editor-section">
+        <h3><i class="fas fa-star" style="color:var(--accent);margin-inline-end:6px"></i>Features</h3>
+        <div class="editor-fields">
+          ${(c.features || []).map((f, i) => `
+            <div class="field-row"><label>Feature ${i+1} Title</label><input class="editor-input" id="feat_title_${i}" value="${esc(f.title)}"></div>
+            <div class="field-row"><label>Feature ${i+1} Desc</label><textarea class="editor-textarea" id="feat_desc_${i}">${esc(f.desc)}</textarea></div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- USE CASES -->
+      <div class="section-card editor-section">
+        <h3><i class="fas fa-images" style="color:var(--accent);margin-inline-end:6px"></i>Use Cases / Gallery</h3>
+        <div class="editor-fields">
+          ${(c.usecases || []).map((u, i) => `
+            <div class="field-row"><label>Card ${i+1} Image</label><div>${imgField('uc_img_'+i, u.image)}</div></div>
+            <div class="field-row"><label>Card ${i+1} Tag</label><input class="editor-input" id="uc_tag_${i}" value="${esc(u.tag)}"></div>
+            <div class="field-row"><label>Card ${i+1} Label</label><input class="editor-input" id="uc_lbl_${i}" value="${esc(u.label)}"></div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- TESTIMONIALS -->
+      <div class="section-card editor-section">
+        <h3><i class="fas fa-quote-left" style="color:var(--accent);margin-inline-end:6px"></i>Testimonials</h3>
+        <div class="editor-fields">
+          ${(c.testimonials || []).map((t, i) => `
+            <div class="field-row"><label>Review ${i+1} Text</label><textarea class="editor-textarea" id="test_text_${i}">${esc(t.text)}</textarea></div>
+            <div class="field-row"><label>Review ${i+1} Name</label><input class="editor-input" id="test_name_${i}" value="${esc(t.name)}"></div>
+            <div class="field-row"><label>Review ${i+1} Role</label><input class="editor-input" id="test_role_${i}" value="${esc(t.role)}"></div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="section-card editor-section">
+        <h3><i class="fas fa-bullhorn" style="color:var(--accent);margin-inline-end:6px"></i>CTA Section</h3>
+        <div class="editor-fields">
+          ${field('CTA Title', 'cta_title', c.cta?.title)}
+          ${field('CTA Subtitle', 'cta_subtitle', c.cta?.subtitle)}
+          ${field('Button: Trial', 'cta_btn_trial', c.cta?.btn_trial)}
+          ${field('Button: Pricing', 'cta_btn_pricing', c.cta?.btn_pricing)}
+        </div>
+      </div>
+    `;
+
+    // Attach image upload handlers
+    document.querySelectorAll('.img-upload-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fieldId = btn.dataset.field;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = async () => {
+          const file = input.files[0];
+          if (!file) return;
+          const fd = new FormData();
+          fd.append('image', file);
+          try {
+            const res = await api('/upload-image', { method: 'POST', headers: {}, body: fd });
+            const d = await res.json();
+            if (d.url) {
+              document.getElementById('imgval_' + fieldId).value = d.url;
+              const preview = document.getElementById('imgprev_' + fieldId);
+              if (preview) preview.src = d.url;
+              showToast('Image uploaded', 'success');
+            }
+          } catch(e) { showToast('Upload failed: ' + e.message, 'error'); }
+        };
+        input.click();
+      });
+    });
+  }
+
+  function field(label, id, val = '', textarea = false) {
+    if (textarea) {
+      return `<div class="field-row"><label>${label}</label><textarea class="editor-textarea" id="cf_${id}">${esc(val)}</textarea></div>`;
+    }
+    return `<div class="field-row"><label>${label}</label><input class="editor-input" id="cf_${id}" value="${esc(val)}"></div>`;
+  }
+
+  function imgField(id, url = '') {
+    return `<div class="img-row">
+      <input class="editor-input" id="imgval_${id}" value="${esc(url)}" style="flex:1">
+      ${url ? `<img id="imgprev_${id}" src="${url}" class="img-preview">` : `<span id="imgprev_${id}"></span>`}
+      <button class="act-btn img-upload-btn" data-field="${id}" title="Upload image"><i class="fas fa-upload"></i></button>
+    </div>`;
+  }
+
+  function esc(s) { return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+  function gv(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
+  async function saveContent() {
+    const c = siteContent || {};
+    const updated = {
+      ...c,
+      hero: {
+        ...c.hero,
+        badge: gv('cf_hero_badge'),
+        title_line1: gv('cf_hero_title1'),
+        title_line2: gv('cf_hero_title2'),
+        brand: gv('cf_hero_brand'),
+        subtitle: gv('cf_hero_subtitle'),
+        btn_trial: gv('cf_hero_btn_trial'),
+        btn_buy: gv('cf_hero_btn_buy'),
+        note: gv('cf_hero_note'),
+        bg_images: [
+          gv('imgval_hero_bg1') || c.hero?.bg_images?.[0],
+          gv('imgval_hero_bg2') || c.hero?.bg_images?.[1],
+          gv('imgval_hero_bg3') || c.hero?.bg_images?.[2],
+        ],
+        slider_before: gv('imgval_hero_slider_before') || c.hero?.slider_before,
+        slider_after: gv('imgval_hero_slider_after') || c.hero?.slider_after,
+      },
+      stats: (c.stats || []).map((s, i) => ({
+        number: gv(`stat_num_${i}`) || s.number,
+        label: gv(`stat_lbl_${i}`) || s.label,
+      })),
+      features: (c.features || []).map((f, i) => ({
+        ...f,
+        title: gv(`feat_title_${i}`) || f.title,
+        desc: gv(`feat_desc_${i}`) || f.desc,
+      })),
+      usecases: (c.usecases || []).map((u, i) => ({
+        image: gv(`imgval_uc_img_${i}`) || u.image,
+        tag: gv(`uc_tag_${i}`) || u.tag,
+        label: gv(`uc_lbl_${i}`) || u.label,
+      })),
+      testimonials: (c.testimonials || []).map((t, i) => ({
+        ...t,
+        text: gv(`test_text_${i}`) || t.text,
+        name: gv(`test_name_${i}`) || t.name,
+        role: gv(`test_role_${i}`) || t.role,
+      })),
+      cta: {
+        title: gv('cf_cta_title'),
+        subtitle: gv('cf_cta_subtitle'),
+        btn_trial: gv('cf_cta_btn_trial'),
+        btn_pricing: gv('cf_cta_btn_pricing'),
+      }
+    };
+
+    try {
+      const res = await api('/content', { method: 'PUT', body: JSON.stringify(updated) });
+      if (!res.ok) throw new Error('Save failed');
+      siteContent = updated;
+      document.getElementById('saveStatus').textContent = '✓ Saved at ' + new Date().toLocaleTimeString();
+      showToast('Content saved!', 'success');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function previewSite() {
+    window.open('/', '_blank');
+  }
+
+  // ── CSS Editor ────────────────────────────────────────────────────
+  async function loadCssEditor() {
+    try {
+      const res = await api('/custom-css');
+      const data = await res.json();
+      document.getElementById('cssEditor').value = data.css || '';
+    } catch (e) { /* ignore */ }
+  }
+
+  async function saveCss() {
+    const css = document.getElementById('cssEditor').value;
+    const status = document.getElementById('cssStatus');
+    try {
+      const res = await api('/custom-css', { method: 'PUT', body: JSON.stringify({ css }) });
+      if (!res.ok) throw new Error('Save failed');
+      status.textContent = '✓ Saved at ' + new Date().toLocaleTimeString();
+      status.style.color = 'var(--green)';
+      showToast('CSS saved! Reload site to see changes.', 'success');
+    } catch (e) {
+      status.textContent = '✗ ' + e.message;
+      status.style.color = 'var(--red)';
+    }
+  }
+
+  function resetCss() {
+    if (!confirm('Reset custom CSS to empty? This cannot be undone.')) return;
+    document.getElementById('cssEditor').value = '/* PixelAI Custom CSS — edited via Admin Panel */\n';
+    saveCss();
+  }
+
+  // Quick Controls → generate CSS
+  function applyQuickControls() {
+    const font     = document.getElementById('qc-font').value;
+    const fontSize = document.getElementById('qc-fontsize').value;
+    const heroSize = document.getElementById('qc-hero-size').value;
+    const accent   = document.getElementById('qc-accent').value;
+    const bg       = document.getElementById('qc-bg').value;
+    const text     = document.getElementById('qc-text').value;
+    const btn      = document.getElementById('qc-btn').value;
+    const secPad    = document.getElementById('qc-section-pad').value;
+    const heroPad   = document.getElementById('qc-hero-pad').value;
+    const radius    = document.getElementById('qc-radius').value;
+    const container = document.getElementById('qc-container').value;
+    const cardPad   = document.getElementById('qc-card-pad').value;
+    const tablePad  = document.getElementById('qc-table-pad').value;
+    const navHeight = document.getElementById('qc-nav-height').value;
+    const bodyPad   = document.getElementById('qc-body-pad').value;
+
+    let css = '/* Generated by Quick Controls */\n\n';
+
+    if (font) css += `body, * { font-family: '${font}', sans-serif !important; }\n`;
+    css += `body { font-size: ${fontSize}px; background: ${bg}; color: ${text}; }\n`;
+    css += `.home-hero-title { font-size: ${heroSize}px !important; }\n`;
+    css += `:root[data-theme="dark"] { --accent: ${accent}; --bg: ${bg}; --text: ${text}; }\n`;
+    css += `.btn-hero-primary, .pcard-btn-gold { background: ${btn} !important; }\n`;
+    css += `.tools-section, .features-section, .how-section-home, .gallery-section,
+.testimonials-section, .pricing-section-home { padding: ${secPad}px 24px !important; }\n`;
+    css += `.hero { padding-top: ${heroPad}px !important; }\n`;
+    css += `.tool-card, .tcard, .pcard, .feat-cell, .gallery-card { border-radius: ${radius}px !important; padding: ${cardPad}px !important; }\n`;
+    css += `.admin-body, .admin-wrap { max-width: ${container}px; padding-inline: ${bodyPad}px; }\n`;
+    css += `nav.admin-nav { height: ${navHeight}px; padding-inline: ${bodyPad}px; }\n`;
+    css += `.stat-card { padding: ${cardPad}px !important; }\n`;
+    css += `.section-card .section-head, .editor-fields, .log-list { padding-inline: ${cardPad}px !important; }\n`;
+    css += `tbody td, thead th { padding: ${tablePad}px ${cardPad}px !important; }\n`;
+
+    document.getElementById('cssEditor').value = css;
+  }
+
+  // Live range label updates
+  ['qc-fontsize','qc-hero-size','qc-section-pad','qc-hero-pad','qc-radius','qc-container','qc-card-pad','qc-table-pad','qc-nav-height','qc-body-pad'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const label = document.getElementById(id + '-val');
+    el.addEventListener('input', () => { if (label) label.textContent = el.value + 'px'; });
+  });
+
+  // ── i18n ──────────────────────────────────────────────────────────
+  function adminSetLang(lang) {
+    setLanguage(lang);
+    // Re-render dynamic content with new language
+    renderUsers(allUsers);
+    // Update active lang button styles
+    ['ar','en','fr'].forEach(l => {
+      const btn = document.getElementById('adminLang' + l.charAt(0).toUpperCase() + l.slice(1));
+      if (btn) btn.style.color = (l === lang) ? 'var(--accent)' : 'var(--text2)';
+    });
+  }
+
+  // Init language on load
+  (function() {
+    const lang = localStorage.getItem('pixelai_lang') || 'en';
+    setLanguage(lang);
+    ['ar','en','fr'].forEach(l => {
+      const btn = document.getElementById('adminLang' + l.charAt(0).toUpperCase() + l.slice(1));
+      if (btn) btn.style.color = (l === lang) ? 'var(--accent)' : 'var(--text2)';
+    });
+  })();
+</script>
+</body>
+</html>

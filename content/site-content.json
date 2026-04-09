@@ -1,0 +1,174 @@
+{
+  "cta": {
+    "title": "Ready to Enhance Your Photos?",
+    "subtitle": "Join 50,000+ creators who trust PixelAI for professional results",
+    "btn_trial": "Start Free Trial",
+    "btn_pricing": "View Pricing"
+  },
+  "features": [
+    {
+      "desc": "Real-ESRGAN + CLAHE to preserve fine details",
+      "icon": "fa-expand-arrows-alt",
+      "title": "Smart 4× Upscaling"
+    },
+    {
+      "desc": "Dynamic balance of light and shadow",
+      "icon": "fa-sun",
+      "title": "Real HDR"
+    },
+    {
+      "desc": "Advanced algorithms for clean bright photos",
+      "icon": "fa-wind",
+      "title": "Noise Removal"
+    },
+    {
+      "desc": "Bilateral + edge-preserving for natural skin",
+      "icon": "fa-user-circle",
+      "title": "Face Enhancement"
+    },
+    {
+      "desc": "Exposure, Contrast, Saturation, Warmth in real-time",
+      "icon": "fa-sliders-h",
+      "title": "Full Color Control"
+    },
+    {
+      "desc": "Local processing on your device, nothing sent to cloud",
+      "icon": "fa-lock",
+      "title": "100% Private"
+    }
+  ],
+  "hero": {
+    "badge": "Rated #1 AI Image Enhancer 2026",
+    "bg_images": [
+      "/assets/images/hero1.webp",
+      "/assets/images/hero2.webp",
+      "/assets/images/hero3.webp"
+    ],
+    "brand": "PixelAI",
+    "btn_buy": "Buy Now",
+    "btn_trial": "Free Trial",
+    "note": "Lifetime License. Risk-Free Refund.",
+    "slider_after": "/assets/images/7e4f9a3f87cbb366.webp",
+    "slider_before": "/assets/images/a292fc755a792ea2.webp",
+    "subtitle": "Upscale, denoise, HDR, face restoration — all locally on your device with complete privacy",
+    "title_line1": "Transform Your Photos",
+    "title_line2": "with AI Intelligence"
+  },
+  "pricing": [
+    {
+      "badge": "",
+      "btn_href": "/pages/register.html",
+      "btn_style": "btn-primary",
+      "btn_text": "Get Started Free",
+      "desc": "Perfect to get started",
+      "featured": false,
+      "features": [
+        "10 free images",
+        "2× and 4× upscaling",
+        "Standard quality"
+      ],
+      "name": "Free",
+      "period": "",
+      "price": "$0"
+    },
+    {
+      "badge": "Most Popular",
+      "btn_href": "/pages/register.html",
+      "btn_style": "btn-yellow",
+      "btn_text": "Subscribe Now",
+      "desc": "For serious creators",
+      "featured": true,
+      "features": [
+        "100 images/month",
+        "All AI models",
+        "Priority processing",
+        "Batch processing"
+      ],
+      "name": "Pro",
+      "period": "/month",
+      "price": "$9.99"
+    },
+    {
+      "badge": "Best Value",
+      "btn_href": "/pages/pricing.html",
+      "btn_style": "btn-secondary",
+      "btn_text": "Buy Once",
+      "desc": "Pay once, own forever",
+      "featured": false,
+      "features": [
+        "Unlimited images",
+        "All current & future features",
+        "Gold support",
+        "Lifetime free updates"
+      ],
+      "name": "Lifetime",
+      "period": "",
+      "price": "$49"
+    }
+  ],
+  "stats": [
+    {
+      "number": "2M+",
+      "label": "images enhanced"
+    },
+    {
+      "number": "4.9/5",
+      "label": "user rating"
+    },
+    {
+      "number": "50K+",
+      "label": "active users"
+    },
+    {
+      "number": "4×",
+      "label": "max upscale"
+    }
+  ],
+  "testimonials": [
+    {
+      "name": "Sarah Johnson",
+      "role": "Photographer, NYC",
+      "stars": 5,
+      "text": "PixelAI transformed my old vacation photos into stunning high-res masterpieces. The AI is incredibly intelligent and preserves every detail!"
+    },
+    {
+      "name": "Mohammed Al-Rashid",
+      "role": "Digital Artist, Dubai",
+      "stars": 5,
+      "text": "The face enhancement feature is mind-blowing. My portrait photography business has never looked better. Clients love the results!"
+    },
+    {
+      "name": "Claire Dubois",
+      "role": "Graphic Designer, Paris",
+      "stars": 5,
+      "text": "J'utilise PixelAI pour tous mes projets créatifs. La qualité est exceptionnelle et la vitesse de traitement est incroyable. Indispensable!"
+    }
+  ],
+  "usecases": [
+    {
+      "image": "/assets/images/portrait-colorful.webp",
+      "tag": "Portrait",
+      "label": "Face & Skin Enhancement"
+    },
+    {
+      "image": "/assets/images/portrait-tribal.webp",
+      "tag": "Detail",
+      "label": "Texture & Detail Recovery"
+    },
+    {
+      "image": "/assets/images/hero2.webp",
+      "tag": "Scene",
+      "label": "Scene & Subject Sharpening"
+    },
+    {
+      "image": "/assets/images/hero1.webp",
+      "tag": "Restore",
+      "label": "Old Photo Restoration"
+    },
+    {
+      "image": "/assets/images/hero4.webp",
+      "tag": "Close-up",
+      "label": "Close-up & Macro Upscaling"
+    }
+  ]
+}

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI — AI Image Enhancer</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../assets/custom.css">
+  <link rel="stylesheet" href="../css/enhance.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div class="enhance-page">
+
+  <!-- Header -->
+  <div class="enhance-header">
+    <h1 data-i18n="enhance_title">AI Image Enhancer</h1>
+    <p data-i18n="upload_subtitle">or click to browse • PNG, JPG, WEBP</p>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fi" accept="image/*">
+
+  <!-- Upload Zone -->
+  <div id="upz" class="upload-zone" style="margin: 20px auto; max-width: 680px;">
+    <div class="upload-inner">
+      <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+      <p class="upload-title" data-i18n="upload_title">Drop your image here</p>
+      <p class="upload-subtitle" data-i18n="upload_subtitle">or click to browse • PNG, JPG, WEBP • Max 10MB</p>
+      <button class="sample-btn" id="sampleBtn" type="button" onclick="loadSampleImage(event)">
+        <i class="fas fa-image"></i>
+        <span data-i18n="sample_btn">Try a sample</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="enhance-layout" id="mainLayout">
+
+    <!-- Controls Panel -->
+    <div class="ctrl-panel" id="ctrlPanel">
+
+      <!-- Settings -->
+      <div class="ctrl-section">
+        <p class="ctrl-section-title" data-i18n="settings_title">Settings</p>
+
+        <!-- Mode -->
+        <div class="ctrl-row">
+          <label class="ctrl-label" data-i18n="mode_label">Enhancement Type</label>
+          <select class="ctrl-select" id="modeSelect">
+            <option value="auto" data-i18n="mode_auto">Auto</option>
+            <option value="portrait" data-i18n="mode_portrait">Portrait / Faces</option>
+            <option value="landscape" data-i18n="mode_landscape">Landscape</option>
+            <option value="product" data-i18n="mode_product">Products</option>
+            <option value="lowlight" data-i18n="mode_lowlight">Low Light</option>
+            <option value="anime" data-i18n="mode_anime">Anime / Cartoon ✦</option>
+          </select>
+        </div>
+
+        <!-- Scale -->
+        <div class="ctrl-row">
+          <label class="ctrl-label" data-i18n="scale_label">Upscale Factor</label>
+          <div class="scale-btns">
+            <label class="scale-btn">
+              <input type="radio" name="scale" value="1" style="display:none"> 1×
+            </label>
+            <label class="scale-btn active">
+              <input type="radio" name="scale" value="2" checked style="display:none"> 2×
+            </label>
+            <label class="scale-btn">
+              <input type="radio" name="scale" value="3" style="display:none"> 3×
+            </label>
+            <label class="scale-btn">
+              <input type="radio" name="scale" value="4" style="display:none"> 4×
+            </label>
+          </div>
+        </div>
+
+        <!-- Sharpness -->
+        <div class="ctrl-row">
+          <label class="ctrl-label" data-i18n="sharpness_label">Sharpness Level</label>
+          <div class="sharp-btns">
+            <button class="sharp-btn" data-val="low" data-i18n="sharp_low">Low</button>
+            <button class="sharp-btn active" data-val="medium" data-i18n="sharp_medium">Medium</button>
+            <button class="sharp-btn" data-val="high" data-i18n="sharp_high">High</button>
+            <button class="sharp-btn" data-val="ultra" data-i18n="sharp_ultra">Ultra</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Controls -->
+      <div class="ctrl-section">
+        <p class="ctrl-section-title" data-i18n="color_title">Colors</p>
+
+        <div class="ctrl-row">
+          <label class="ctrl-label">
+            <span data-i18n="exposure">Exposure</span>
+            <span class="ctrl-value" id="exposureVal">0</span>
+          </label>
+          <input type="range" class="ctrl-slider" id="exposureSlider" min="-100" max="100" value="0">
+        </div>
+
+        <div class="ctrl-row">
+          <label class="ctrl-label">
+            <span data-i18n="contrast">Contrast</span>
+            <span class="ctrl-value" id="contrastVal">0</span>
+          </label>
+          <input type="range" class="ctrl-slider" id="contrastSlider" min="-100" max="100" value="0">
+        </div>
+
+        <div class="ctrl-row">
+          <label class="ctrl-label">
+            <span data-i18n="saturation">Saturation</span>
+            <span class="ctrl-value" id="saturationVal">0</span>
+          </label>
+          <input type="range" class="ctrl-slider" id="saturationSlider" min="-100" max="100" value="0">
+        </div>
+
+        <div class="ctrl-row">
+          <label class="ctrl-label">
+            <span data-i18n="warmth">Warmth</span>
+            <span class="ctrl-value" id="warmthVal">0</span>
+          </label>
+          <input type="range" class="ctrl-slider" id="warmthSlider" min="-100" max="100" value="0">
+        </div>
+
+        <div class="ctrl-row">
+          <label class="ctrl-label">
+            <span data-i18n="shadows">Shadows</span>
+            <span class="ctrl-value" id="shadowsVal">0</span>
+          </label>
+          <input type="range" class="ctrl-slider" id="shadowsSlider" min="-100" max="100" value="0">
+        </div>
+
+        <div class="ctrl-row">
+          <label class="ctrl-label">
+            <span data-i18n="highlights">Highlights</span>
+            <span class="ctrl-value" id="highlightsVal">0</span>
+          </label>
+          <input type="range" class="ctrl-slider" id="highlightsSlider" min="-100" max="100" value="0">
+        </div>
+
+        <button class="btn-reset" id="resetBtn">
+          <i class="fas fa-undo"></i>
+          <span data-i18n="reset_settings">Reset</span>
+        </button>
+      </div>
+
+      <!-- Effects -->
+      <div class="ctrl-section">
+        <p class="ctrl-section-title" data-i18n="effects_title">Effects</p>
+
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <i class="fas fa-sun"></i>
+            <span data-i18n="hdr_effect">HDR Effect</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="hdrToggle">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <i class="fas fa-wind"></i>
+            <span data-i18n="denoise">Noise Removal</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="denoiseToggle" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <i class="fas fa-user-circle"></i>
+            <span data-i18n="face_enhance">Face Enhancement</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="faceToggle">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <!-- End ctrl-panel -->
+
+    <!-- Right Side -->
+    <div class="right-side">
+
+      <!-- Enhance Button -->
+      <button class="btn-go" id="goBtn" disabled>
+        ⚡ <span data-i18n="enhance_btn">Enhance Now</span>
+      </button>
+
+      <!-- Progress -->
+      <div id="prog">
+        <div class="prog-label">
+          <span data-i18n="processing">Processing...</span>
+          <span id="progPct">0%</span>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-fill" id="progFill"></div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="res">
+        <div class="result-title-bar">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h3 data-i18n="result_title">Enhancement Result ✦</h3>
+            <span id="qualityBadge" class="quality-badge" style="display:none">
+              <i class="fas fa-robot"></i> Real-ESRGAN ×<span id="badgeScale">4</span>
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="zoom-btn" id="zoomBtn" onclick="toggleZoom()" title="Zoom to compare details" style="display:none">
+              <i class="fas fa-search-plus"></i>
+            </button>
+            <span class="result-hint">
+              <i class="fas fa-arrows-alt-h"></i>
+              <span data-i18n="drag_to_compare">Drag line to compare</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Zoom overlay -->
+        <div id="zoomOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+          <div style="display:flex;gap:12px;max-width:95vw;max-height:80vh">
+            <div style="text-align:center">
+              <p style="color:#888;font-size:12px;margin-bottom:6px" data-i18n="before">Before</p>
+              <img id="zoomBefore" src="" style="max-width:45vw;max-height:75vh;object-fit:contain;border-radius:8px;border:1px solid #333">
+            </div>
+            <div style="text-align:center">
+              <p style="color:#f5c842;font-size:12px;margin-bottom:6px" data-i18n="after">After AI ✦</p>
+              <img id="zoomAfter" src="" style="max-width:45vw;max-height:75vh;object-fit:contain;border-radius:8px;border:1px solid #f5c842">
+            </div>
+          </div>
+          <button onclick="toggleZoom()" style="padding:10px 28px;background:#f5c842;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px">✕ <span data-i18n="close_btn">Close</span></button>
+        </div>
+
+        <!-- Comparison Slider -->
+        <div class="sldr" id="sldr">
+          <img class="s-after" id="slBg" src="" alt="Enhanced">
+          <img class="s-before" id="fgImg" src="" alt="Original">
+          <div class="s-line" id="sln">
+            <div class="s-circ">◄►</div>
+          </div>
+          <span class="s-lbl s-lbl-l" data-i18n="before">Before</span>
+          <span class="s-lbl s-lbl-r" data-i18n="after">After AI ✦</span>
+        </div>
+
+        <!-- Info -->
+        <div class="info">
+          <div class="info-item">
+            <i class="fas fa-search-plus"></i>
+            <span data-i18n="zoom">Scale</span>:
+            <span id="infoZoom">—</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-expand"></i>
+            <span data-i18n="new_resolution">New Resolution</span>:
+            <span id="infoRes">—</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-clock"></i>
+            <span data-i18n="process_time">Processing Time</span>:
+            <span id="infoTime">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Download Button -->
+      <a class="btn-dl" id="dlBtn" style="display:none">
+        ⬇️ <span data-i18n="download_btn">Download Enhanced Image</span>
+      </a>
+
+    </div>
+    <!-- End right-side -->
+
+  </div>
+  <!-- End enhance-layout -->
+
+</div>
+
+<div id="footer-container"></div>
+
+<script src="../js/translations.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script src="../js/enhance.js"></script>
+<script>
+  initTheme();
+  setLanguage(localStorage.getItem('pixelai_lang') || 'ar');
+  injectNavbar();
+  injectFooter();
+
+  // Scale button active state
+  document.querySelectorAll('.scale-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const radio = btn.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+    });
+  });
+
+  // Progress percentage display
+  const progFill = document.getElementById('progFill');
+  const progPct = document.getElementById('progPct');
+  if (progFill && progPct) {
+    const observer = new MutationObserver(() => {
+      const w = progFill.style.width;
+      progPct.textContent = w || '0%';
+    });
+    observer.observe(progFill, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  // Show quality badge + zoom btn after result
+  const resEl = document.getElementById('res');
+  if (resEl) {
+    new MutationObserver(() => {
+      const visible = resEl.style.display !== 'none' && resEl.style.display !== '';
+      const scaleVal = document.querySelector('input[name="scale"]:checked')?.value || '4';
+      document.getElementById('badgeScale').textContent = scaleVal;
+      document.getElementById('qualityBadge').style.display = visible ? 'inline-flex' : 'none';
+      document.getElementById('zoomBtn').style.display = visible ? 'flex' : 'none';
+    }).observe(resEl, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  // Zoom
+  function toggleZoom() {
+    const ov = document.getElementById('zoomOverlay');
+    const isOpen = ov.style.display === 'flex';
+    if (!isOpen) {
+      const slBg = document.getElementById('slBg');
+      const fgImg = document.getElementById('fgImg');
+      document.getElementById('zoomAfter').src = slBg?.src || '';
+      document.getElementById('zoomBefore').src = fgImg?.src || '';
+    }
+    ov.style.display = isOpen ? 'none' : 'flex';
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+  }
+  // Close on Escape
+  document.addEventListener('keydown', e => { if(e.key==='Escape') { const ov=document.getElementById('zoomOverlay'); if(ov.style.display==='flex'){ov.style.display='none';document.body.style.overflow='';} } });
+</script>
+</body>
+</html>

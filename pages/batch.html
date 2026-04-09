@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI — Batch Processor (Coming Soon)</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../assets/custom.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<main class="page-wrapper">
+  <div class="coming-soon-page">
+
+    <div class="coming-soon-icon">📦</div>
+
+    <div class="coming-soon-badge">
+      <i class="fas fa-clock"></i>
+      <span data-i18n="coming_soon_title">Coming Soon</span>
+    </div>
+
+    <h1 class="coming-soon-title">Batch Processor</h1>
+
+    <p class="coming-soon-sub" data-i18n="coming_soon_subtitle">
+      We're working on this feature. It will launch very soon!
+    </p>
+
+    <p style="color:var(--text2);font-size:15px;max-width:560px;margin:0 auto 32px;line-height:1.7;">
+      Process hundreds of images at once with the same settings. Perfect for photographers, e-commerce stores, and content creators who need bulk AI enhancement.
+    </p>
+
+    <div class="coming-soon-features">
+      <div class="coming-feature-card">
+        <span class="coming-lock">🔒</span>
+        <div class="coming-feature-icon">📂</div>
+        <p class="coming-feature-title">Folder Upload</p>
+        <p class="coming-feature-desc">Drop an entire folder and process all images at once</p>
+      </div>
+      <div class="coming-feature-card">
+        <span class="coming-lock">🔒</span>
+        <div class="coming-feature-icon">⚙️</div>
+        <p class="coming-feature-title">Unified Settings</p>
+        <p class="coming-feature-desc">Apply the same enhancement settings to all images</p>
+      </div>
+      <div class="coming-feature-card">
+        <span class="coming-lock">🔒</span>
+        <div class="coming-feature-icon">📊</div>
+        <p class="coming-feature-title">Progress Tracking</p>
+        <p class="coming-feature-desc">Real-time progress bar with queue management</p>
+      </div>
+      <div class="coming-feature-card">
+        <span class="coming-lock">🔒</span>
+        <div class="coming-feature-icon">📥</div>
+        <p class="coming-feature-title">ZIP Download</p>
+        <p class="coming-feature-desc">Download all enhanced images in a single ZIP file</p>
+      </div>
+    </div>
+
+    <div class="notify-form">
+      <input type="email" class="notify-input" id="notifyEmail" data-i18n-attr="placeholder" data-i18n="notify_email" placeholder="Your email address">
+      <button class="btn-primary" onclick="notifyMe()">
+        <i class="fas fa-bell"></i>
+        <span data-i18n="notify_btn">Notify Me at Launch</span>
+      </button>
+    </div>
+
+    <a href="/pages/index.html" class="btn-secondary">
+      <i class="fas fa-arrow-left"></i>
+      <span data-i18n="back_home">Back to Home</span>
+    </a>
+
+  </div>
+</main>
+
+<div id="footer-container"></div>
+
+<script src="../js/translations.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script>
+  initTheme();
+  setLanguage(localStorage.getItem('pixelai_lang') || 'ar');
+  injectNavbar();
+  injectFooter();
+
+  function notifyMe() {
+    const email = document.getElementById('notifyEmail').value;
+    if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-success';
+    toast.textContent = "Thanks! We'll notify you at " + email;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
+    document.getElementById('notifyEmail').value = '';
+  }
+</script>
+</body>
+</html>

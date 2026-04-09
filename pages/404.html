@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI — Page Not Found</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../assets/custom.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .page-404 {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .err-code {
+      font-size: clamp(80px, 18vw, 160px);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -4px;
+      margin-bottom: 8px;
+    }
+
+    .err-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 20px rgba(245,200,66,.4));
+    }
+
+    .err-title {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 700;
+      color: var(--text1);
+      margin: 0 0 12px;
+    }
+
+    .err-sub {
+      color: var(--text2);
+      font-size: 15px;
+      max-width: 440px;
+      line-height: 1.7;
+      margin: 0 auto 36px;
+    }
+
+    .err-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .err-suggestions {
+      margin-top: 52px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+    }
+
+    .err-suggestion-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: var(--text2);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all .2s;
+      min-width: 160px;
+    }
+
+    .err-suggestion-card:hover {
+      border-color: var(--accent);
+      color: var(--text1);
+      transform: translateY(-2px);
+    }
+
+    .err-suggestion-card i {
+      color: var(--accent);
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<main class="page-wrapper">
+  <div class="page-404">
+
+    <div class="err-icon">🔍</div>
+    <div class="err-code">404</div>
+    <h1 class="err-title">Page Not Found</h1>
+    <p class="err-sub">
+      The page you're looking for doesn't exist or has been moved.
+      Let's get you back on track.
+    </p>
+
+    <div class="err-actions">
+      <a href="/pages/index.html" class="btn-primary btn-large">
+        <i class="fas fa-home"></i>
+        <span>Back to Home</span>
+      </a>
+      <a href="/pages/enhance.html" class="btn-secondary btn-large">
+        <i class="fas fa-magic"></i>
+        <span>Try PixelAI</span>
+      </a>
+    </div>
+
+    <div class="err-suggestions">
+      <a href="/pages/enhance.html" class="err-suggestion-card">
+        <i class="fas fa-magic"></i>
+        <span>Image Enhancer</span>
+      </a>
+      <a href="/pages/pricing.html" class="err-suggestion-card">
+        <i class="fas fa-crown"></i>
+        <span>Pricing Plans</span>
+      </a>
+      <a href="/pages/login.html" class="err-suggestion-card">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Sign In</span>
+      </a>
+      <a href="/pages/dashboard.html" class="err-suggestion-card">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<div id="footer-container"></div>
+
+<script src="../js/translations.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script>
+  initTheme();
+  setLanguage(localStorage.getItem('pixelai_lang') || 'ar');
+  injectNavbar();
+  injectFooter();
+</script>
+</body>
+</html>

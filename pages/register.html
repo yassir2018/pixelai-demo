@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI — Create Account</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../assets/custom.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Theme toggle floating button -->
+<button onclick="toggleTheme()" style="position:fixed;top:16px;inset-inline-end:16px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+  <i id="themeIcon" class="fas fa-sun"></i>
+</button>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Logo -->
+    <a href="/pages/index.html" class="auth-logo">
+      <div class="logo-icon">✦</div>
+      <span class="logo-text">PixelAI</span>
+    </a>
+
+    <h1 class="auth-title" data-i18n="register_title">Create Your Account</h1>
+    <p class="auth-subtitle" data-i18n="register_subtitle">Start free with 10 images</p>
+
+    <!-- Google OAuth button -->
+    <button class="google-btn" id="googleAuthBtn">
+      <span class="google-icon"></span>
+      Continue with Google
+    </button>
+
+    <!-- Divider -->
+    <div class="auth-divider">
+      <span>or create with email</span>
+    </div>
+
+    <!-- Register Form -->
+    <form id="registerForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" data-i18n="register_name">Full Name</label>
+        <input
+          type="text"
+          id="registerName"
+          class="form-input"
+          placeholder="John Doe"
+          autocomplete="name"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="register_email">Email Address</label>
+        <input
+          type="email"
+          id="registerEmail"
+          class="form-input"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="register_password">Password</label>
+        <div style="position:relative;">
+          <input
+            type="password"
+            id="registerPassword"
+            class="form-input"
+            placeholder="Min. 8 characters"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+          <button type="button" onclick="togglePass('registerPassword',this)" style="position:absolute;inset-inline-end:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <!-- Password strength -->
+        <div id="passStrength" style="margin-top:6px;height:4px;border-radius:2px;background:var(--border);overflow:hidden;">
+          <div id="passStrengthBar" style="height:100%;width:0%;border-radius:2px;transition:all 0.3s;"></div>
+        </div>
+        <p id="passStrengthText" style="font-size:11px;color:var(--text3);margin-top:4px;"></p>
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" id="registerTerms" required>
+        <label for="registerTerms" data-i18n="register_terms">I agree to the Terms & Conditions</label>
+      </div>
+
+      <button type="submit" id="registerBtn" class="btn-yellow btn-submit" data-i18n="register_btn">Create Account</button>
+    </form>
+
+    <p class="auth-switch">
+      <span data-i18n="register_have_account">Already have an account?</span>
+      <a href="/pages/login.html" data-i18n="register_login"> Sign In</a>
+    </p>
+
+  </div>
+</div>
+
+<script src="../js/translations.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  initTheme();
+  setLanguage(localStorage.getItem('pixelai_lang') || 'ar');
+
+  // Language switcher minimal
+  const lsDiv = document.createElement('div');
+  lsDiv.style.cssText = 'position:fixed;top:16px;inset-inline-start:16px;z-index:999;display:flex;gap:6px;';
+  ['ar','en','fr'].forEach(lang => {
+    const btn = document.createElement('button');
+    btn.textContent = lang === 'ar' ? 'عربي' : lang.toUpperCase();
+    btn.style.cssText = 'padding:6px 10px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;';
+    btn.onclick = () => setLanguage(lang);
+    lsDiv.appendChild(btn);
+  });
+  document.body.appendChild(lsDiv);
+
+  function togglePass(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+      input.type = 'password';
+      btn.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+  }
+
+  // Password strength meter
+  document.getElementById('registerPassword').addEventListener('input', function() {
+    const val = this.value;
+    const bar = document.getElementById('passStrengthBar');
+    const txt = document.getElementById('passStrengthText');
+    let strength = 0;
+    if (val.length >= 8) strength++;
+    if (/[A-Z]/.test(val)) strength++;
+    if (/[0-9]/.test(val)) strength++;
+    if (/[^a-zA-Z0-9]/.test(val)) strength++;
+
+    const colors = ['', '#ef4444', '#f97316', '#eab308', '#22c55e'];
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    bar.style.width = (strength * 25) + '%';
+    bar.style.background = colors[strength] || '';
+    txt.textContent = val.length > 0 ? labels[strength] || '' : '';
+    txt.style.color = colors[strength] || '';
+  });
+</script>
+</body>
+</html>

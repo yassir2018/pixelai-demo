@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI — AI Image Enhancement Platform</title>
+  <meta name="description" content="Transform your photos with AI. Upscale, denoise, HDR, face restoration — all locally on your device.">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../assets/custom.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* ── Aiarty-style Homepage ───────────────────────────────── */
+    body { background: #000; }
+
+    /* HERO */
+    .home-hero {
+      position: relative;
+      min-height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 140px 24px 80px;
+      background: #000;
+    }
+    .home-hero-bg { position: absolute; inset: 0; z-index: 0; }
+    .home-hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1.5s ease;
+      animation: kenBurnsHero 10s ease-in-out infinite alternate;
+    }
+    .home-hero-slide.active { opacity: 0.25; }
+    @keyframes kenBurnsHero {
+      from { transform: scale(1.0); }
+      to   { transform: scale(1.1) translateX(-1%); }
+    }
+    .home-hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center top, rgba(245,200,66,0.06) 0%, transparent 60%),
+                  linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%);
+    }
+    .home-hero-content {
+      position: relative; z-index: 2;
+      max-width: 900px; margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(245,200,66,0.1);
+      border: 1px solid rgba(245,200,66,0.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.05em;
+      color: #f5c842;
+      margin-bottom: 32px;
+    }
+    .home-hero-title {
+      font-size: clamp(28px, 4.2vw, 54px);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -0.025em; color: #fff;
+      margin-bottom: 24px;
+    }
+    .brand-shimmer {
+      background: linear-gradient(90deg, #f5c842 0%, #fff 40%, #f5c842 60%, #e8a020 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+    .home-hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: rgba(255,255,255,0.6);
+      max-width: 620px; margin: 0 auto 44px;
+      line-height: 1.7;
+    }
+    .hero-cta-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .btn-hero-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #f5c842; color: #000;
+      font-size: 16px; font-weight: 700;
+      padding: 16px 36px; border-radius: 100px;
+      border: none; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 40px rgba(245,200,66,0.35);
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 60px rgba(245,200,66,0.55);
+    }
+    .btn-hero-outline {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: transparent; color: #fff;
+      font-size: 16px; font-weight: 600;
+      padding: 15px 36px; border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-hero-outline:hover {
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.05);
+    }
+    .hero-note-small {
+      font-size: 13px; color: rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .hero-note-small i { color: #22c55e; }
+
+    /* DEMO SLIDER — full-width section */
+    .demo-section {
+      width: 100%;
+      background: #000;
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .demo-wrap {
+      position: relative; width: 100%; height: 400px;
+      cursor: ew-resize; user-select: none;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) { .demo-wrap { height: 220px; } }
+
+    .demo-img {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      width: 100%; height: 100%;
+    }
+    .demo-img-before { clip-path: inset(0 50% 0 0); z-index: 2; }
+    .demo-handle {
+      position: absolute; top: 0; bottom: 0;
+      left: 50%; transform: translateX(-50%);
+      width: 2px; background: #fff; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .demo-handle-btn {
+      width: 44px; height: 44px;
+      background: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      font-size: 14px; color: #000; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .demo-tag {
+      position: absolute; bottom: 16px;
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.05em; z-index: 20;
+    }
+    .demo-tag-before { left: 16px; background: rgba(0,0,0,0.6); color: #fff; }
+    .demo-tag-after  { right: 16px; background: #f5c842; color: #000; }
+
+    /* STATS */
+    .home-stats {
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 40px 24px;
+    }
+    .home-stats-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-around;
+      gap: 24px; flex-wrap: wrap;
+    }
+    .home-stat { text-align: center; }
+    .home-stat-num {
+      font-size: 42px; font-weight: 900;
+      background: linear-gradient(135deg, #f5c842, #e8a020);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; line-height: 1;
+    }
+    .home-stat-lbl { font-size: 14px; color: rgba(255,255,255,0.45); margin-top: 6px; }
+    .home-stats-divider { width: 1px; height: 50px; background: rgba(255,255,255,0.1); }
+
+    /* TOOLS */
+    .tools-section { padding: 100px 24px; background: #000; }
+    .section-header { text-align: center; margin-bottom: 56px; }
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #f5c842; margin-bottom: 16px;
+    }
+    .section-h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800; letter-spacing: -0.02em; color: #fff; line-height: 1.15;
+    }
+    .section-sub {
+      font-size: 17px; color: rgba(255,255,255,0.5);
+      margin-top: 16px; max-width: 560px; margin-inline: auto;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+    }
+    .tool-card {
+      position: relative;
+      background: #0d0d0d;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px; overflow: hidden;
+      padding: 36px 32px 32px;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    .tool-card:hover {
+      border-color: rgba(245,200,66,0.35);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,200,66,0.15);
+    }
+    .tool-card.active-tool {
+      border-color: rgba(245,200,66,0.5);
+      background: linear-gradient(135deg, rgba(245,200,66,0.06) 0%, #0d0d0d 100%);
+    }
+    .tool-card-soon {
+      position: absolute; top: 20px; right: 20px;
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 100px;
+    }
+    [dir="rtl"] .tool-card-soon { right: auto; left: 20px; }
+    .tool-icon {
+      width: 56px; height: 56px;
+      background: rgba(245,200,66,0.12); border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #f5c842; margin-bottom: 20px;
+    }
+    .tool-card.coming-soon .tool-icon {
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3);
+    }
+    .tool-card.coming-soon .tool-cta { color: rgba(255,255,255,0.2); }
+    .tool-name { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .tool-desc { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+    .tool-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 24px; font-size: 14px; font-weight: 600; color: #f5c842;
+      transition: gap 0.2s;
+    }
+    .tool-card:hover .tool-cta { gap: 12px; }
+
+    /* FEATURES GRID */
+    .features-section {
+      padding: 100px 24px; background: #050505;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .features-grid-home {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      max-width: 1100px; margin: 0 auto;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px; overflow: hidden;
+    }
+    @media (max-width: 768px) { .features-grid-home { grid-template-columns: 1fr; } }
+    @media (min-width: 769px) and (max-width: 1024px) { .features-grid-home { grid-template-columns: repeat(2, 1fr); } }
+    .feat-cell {
+      padding: 36px 32px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: background 0.3s;
+    }
+    .feat-cell:hover { background: rgba(255,255,255,0.02); }
+    .feat-cell:nth-child(3n) { border-right: none; }
+    .feat-icon-wrap {
+      width: 48px; height: 48px;
+      background: rgba(245,200,66,0.1); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #f5c842; margin-bottom: 18px;
+    }
+    .feat-cell-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .feat-cell-desc  { font-size: 14px; color: rgba(255,255,255,0.42); line-height: 1.65; }
+
+    /* HOW IT WORKS */
+    .how-section-home { padding: 100px 24px; background: #000; }
+    .steps-row {
+      display: flex; align-items: flex-start;
+      gap: 0; max-width: 1000px; margin: 0 auto; position: relative;
+    }
+    .steps-row::before {
+      content: '';
+      position: absolute; top: 28px;
+      left: calc(16.66% + 28px); right: calc(16.66% + 28px);
+      height: 1px;
+      background: linear-gradient(to right, rgba(245,200,66,0.4), rgba(245,200,66,0.1), rgba(245,200,66,0.4));
+    }
+    @media (max-width: 600px) { .steps-row { flex-direction: column; gap: 32px; } .steps-row::before { display: none; } }
+    .step-item { flex: 1; text-align: center; padding: 0 20px; }
+    .step-num-wrap {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #f5c842, #e8a020);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 900; color: #000;
+      margin: 0 auto 20px; position: relative; z-index: 1;
+    }
+    .step-title-h { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .step-desc-h  { font-size: 14px; color: rgba(255,255,255,0.42); line-height: 1.6; }
+
+    /* GALLERY */
+    .gallery-section {
+      padding: 100px 24px; background: #050505;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 12px; max-width: 1200px; margin: 0 auto;
+    }
+    @media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 560px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+    .gallery-card {
+      position: relative; border-radius: 16px; overflow: hidden;
+      aspect-ratio: 3/4; cursor: pointer;
+    }
+    .gallery-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .gallery-card:hover img { transform: scale(1.06); }
+    .gallery-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%);
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 16px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .gallery-card:hover .gallery-card-overlay { opacity: 1; }
+    .gallery-tag-badge {
+      display: inline-block;
+      background: #f5c842; color: #000;
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+      margin-bottom: 6px; width: fit-content;
+    }
+    .gallery-lbl { font-size: 13px; font-weight: 600; color: #fff; }
+
+    /* TESTIMONIALS */
+    .testimonials-section { padding: 100px 24px; background: #000; }
+    .testimonials-grid-home {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+    }
+    .tcard {
+      background: #0d0d0d; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px; padding: 32px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .tcard:hover { border-color: rgba(245,200,66,0.25); transform: translateY(-3px); }
+    .tcard-stars { color: #f5c842; font-size: 16px; letter-spacing: 2px; margin-bottom: 16px; }
+    .tcard-text  { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.7; margin-bottom: 24px; font-style: italic; }
+    .tcard-author { display: flex; align-items: center; gap: 14px; }
+    .tcard-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, #f5c842, #e8a020);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: #000; flex-shrink: 0;
+    }
+    .tcard-name { font-size: 15px; font-weight: 700; color: #fff; }
+    .tcard-role { font-size: 13px; color: rgba(255,255,255,0.38); }
+
+    /* PRICING */
+    .pricing-section-home {
+      padding: 100px 24px; background: #050505;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .pricing-grid-home {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px; max-width: 1000px; margin: 0 auto;
+    }
+    .pcard {
+      background: #0d0d0d; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px; padding: 40px 32px; position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .pcard:hover { transform: translateY(-4px); }
+    .pcard.featured {
+      background: linear-gradient(145deg, rgba(245,200,66,0.08) 0%, #0d0d0d 60%);
+      border-color: rgba(245,200,66,0.4);
+      box-shadow: 0 0 60px rgba(245,200,66,0.12);
+    }
+    .pcard-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #f5c842, #e8a020);
+      color: #000; font-size: 11px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 6px 20px; border-radius: 100px; white-space: nowrap;
+    }
+    .pcard-name { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.55); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+    .pcard-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
+    .pcard-amount { font-size: 52px; font-weight: 900; color: #fff; line-height: 1; }
+    .pcard-period { font-size: 16px; color: rgba(255,255,255,0.4); }
+    .pcard-desc   { font-size: 14px; color: rgba(255,255,255,0.38); margin-bottom: 28px; }
+    .pcard-divider { height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 24px; }
+    .pcard-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .pcard-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(255,255,255,0.65); }
+    .pcard-features li i.fa-check { color: #22c55e; }
+    .pcard-features li i.fa-times  { color: rgba(255,255,255,0.2); }
+    .pcard-features li.locked span { color: rgba(255,255,255,0.25); }
+    .gallery-cta-wrap { text-align: center; margin-top: 48px; }
+    .pcard-btn {
+      display: block; width: 100%; text-align: center;
+      padding: 14px; border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pcard-btn:hover { transform: translateY(-1px); }
+    .pcard-btn-gold {
+      background: linear-gradient(135deg, #f5c842, #e8a020); color: #000;
+      box-shadow: 0 8px 32px rgba(245,200,66,0.3);
+    }
+    .pcard-btn-gold:hover  { box-shadow: 0 12px 40px rgba(245,200,66,0.5); }
+    .pcard-btn-outline {
+      background: transparent; color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .pcard-btn-outline:hover { border-color: rgba(255,255,255,0.35); }
+
+    /* FINAL CTA */
+    .final-cta {
+      padding: 120px 24px; background: #000;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .final-cta::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px; height: 400px;
+      background: radial-gradient(ellipse, rgba(245,200,66,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .final-cta-content { position: relative; z-index: 1; }
+    .final-cta-title {
+      font-size: clamp(32px, 5vw, 60px); font-weight: 900; color: #fff;
+      letter-spacing: -0.025em; margin-bottom: 20px;
+    }
+    .final-cta-sub {
+      font-size: 18px; color: rgba(255,255,255,0.45);
+      margin-bottom: 44px; max-width: 500px; margin-inline: auto;
+    }
+    .final-cta-buttons {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════ -->
+<section class="home-hero">
+  <div class="home-hero-bg">
+    <div class="home-hero-slide active" style="background-image:url('../assets/images/hero1.webp')"></div>
+    <div class="home-hero-slide"        style="background-image:url('../assets/images/hero2.webp')"></div>
+    <div class="home-hero-slide"        style="background-image:url('../assets/images/hero3.webp')"></div>
+  </div>
+  <div class="home-hero-overlay"></div>
+
+  <div class="home-hero-content">
+    <div class="hero-eyebrow">
+      <i class="fas fa-star"></i>
+      <span data-i18n="home_eyebrow">Rated #1 AI Image Enhancer 2024</span>
+    </div>
+
+    <h1 class="home-hero-title">
+      <span data-i18n="home_hero_title_line1">Enhance Any Photo with</span><br>
+      <span class="brand-shimmer" data-i18n="home_hero_title_brand">AI Intelligence</span>
+    </h1>
+
+    <p class="home-hero-sub" data-i18n="home_hero_sub">
+      Upscale up to 4×, remove noise, restore faces, apply HDR — all processed locally on your device. Zero cloud. Zero compromise.
+    </p>
+
+    <div class="hero-cta-row">
+      <a href="/pages/enhance.html" class="btn-hero-primary">
+        <i class="fas fa-magic"></i>
+        <span data-i18n="home_cta_try">Try Free — No Sign Up</span>
+      </a>
+      <a href="/pages/pricing.html" class="btn-hero-outline">
+        <i class="fas fa-crown"></i>
+        <span data-i18n="home_cta_pricing">View Pricing</span>
+      </a>
+    </div>
+
+    <p class="hero-note-small">
+      <i class="fas fa-shield-alt"></i>
+      <span data-i18n="home_hero_guarantee">Lifetime License · Risk-Free Refund · 100% Private</span>
+    </p>
+  </div>
+</section>
+
+<!-- ═══ DEMO SLIDER — full width ═════════════════════════════ -->
+<section class="demo-section">
+  <div class="demo-wrap" id="demoWrap">
+    <div class="demo-img" id="demoAfter" style="background-image:url('../assets/images/hero4.webp')"></div>
+    <div class="demo-img demo-img-before" id="demoBefore" style="background-image:url('../assets/images/hero3.webp')"></div>
+    <div class="demo-handle" id="demoHandle">
+      <div class="demo-handle-btn">◄ ►</div>
+    </div>
+    <span class="demo-tag demo-tag-before" data-i18n="demo_before">BEFORE</span>
+    <span class="demo-tag demo-tag-after"  data-i18n="demo_after">AFTER AI ✦</span>
+  </div>
+</section>
+
+<!-- ═══ STATS ════════════════════════════════════════════════ -->
+<section class="home-stats">
+  <div class="home-stats-inner">
+    <div class="home-stat">
+      <div class="home-stat-num">2M+</div>
+      <div class="home-stat-lbl" data-i18n="stat_images_label">Images Enhanced</div>
+    </div>
+    <div class="home-stats-divider"></div>
+    <div class="home-stat">
+      <div class="home-stat-num">4.9/5</div>
+      <div class="home-stat-lbl" data-i18n="stat_rating_label">User Rating</div>
+    </div>
+    <div class="home-stats-divider"></div>
+    <div class="home-stat">
+      <div class="home-stat-num">50K+</div>
+      <div class="home-stat-lbl" data-i18n="stat_users_label">Active Users</div>
+    </div>
+    <div class="home-stats-divider"></div>
+    <div class="home-stat">
+      <div class="home-stat-num">4×</div>
+      <div class="home-stat-lbl" data-i18n="stat_upscale_label">Max Upscale</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TOOLS ════════════════════════════════════════════════ -->
+<section class="tools-section">
+  <div class="section-header">
+    <div class="section-eyebrow" data-i18n="tools_eyebrow">Our Tools</div>
+    <h2 class="section-h2" data-i18n="tools_h2">Everything You Need in One Platform</h2>
+    <p class="section-sub" data-i18n="tools_sub">Professional-grade AI tools, running entirely on your machine.</p>
+  </div>
+
+  <div class="tools-grid">
+    <a href="/pages/enhance.html" class="tool-card active-tool">
+      <div class="tool-icon"><i class="fas fa-expand-arrows-alt"></i></div>
+      <h3 class="tool-name" data-i18n="tool1_name">AI Image Enhancer</h3>
+      <p class="tool-desc" data-i18n="tool1_desc">Upscale, denoise, HDR, face restoration with Real-ESRGAN. Up to 4× resolution, JPEG quality 95.</p>
+      <span class="tool-cta">
+        <span data-i18n="tool1_cta">Launch Tool</span>
+        <i class="fas fa-arrow-right"></i>
+      </span>
+    </a>
+
+    <div class="tool-card coming-soon">
+      <span class="tool-card-soon" data-i18n="badge_soon">Soon</span>
+      <div class="tool-icon"><i class="fas fa-film"></i></div>
+      <h3 class="tool-name" data-i18n="tool2_name">AI Video Enhancer</h3>
+      <p class="tool-desc" data-i18n="tool2_desc">Frame-by-frame video upscaling and restoration. Motion-aware AI processing.</p>
+      <span class="tool-cta">
+        <span data-i18n="badge_soon">Soon</span>
+        <i class="fas fa-clock"></i>
+      </span>
+    </div>
+
+    <div class="tool-card coming-soon">
+      <span class="tool-card-soon" data-i18n="badge_soon">Soon</span>
+      <div class="tool-icon"><i class="fas fa-cut"></i></div>
+      <h3 class="tool-name" data-i18n="tool3_name">Background Remover</h3>
+      <p class="tool-desc" data-i18n="tool3_desc">One-click precise background removal for portraits, products, and complex scenes.</p>
+      <span class="tool-cta">
+        <span data-i18n="badge_soon">Soon</span>
+        <i class="fas fa-clock"></i>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ══════════════════════════════════════════════ -->
+<section class="features-section">
+  <div class="section-header">
+    <div class="section-eyebrow" data-i18n="feat_eyebrow">Features</div>
+    <h2 class="section-h2" data-i18n="feat_h2">Pro Results. Zero Complexity.</h2>
+    <p class="section-sub" data-i18n="feat_sub">Every tool engineered for quality — not just speed.</p>
+  </div>
+
+  <div class="features-grid-home">
+    <div class="feat-cell">
+      <div class="feat-icon-wrap"><i class="fas fa-expand-arrows-alt"></i></div>
+      <h3 class="feat-cell-title" data-i18n="feat1_title">Smart 4× Upscaling</h3>
+      <p class="feat-cell-desc" data-i18n="feat1_desc_home">Real-ESRGAN neural network reconstructs fine details at 2× or 4× without blurring.</p>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-icon-wrap"><i class="fas fa-sun"></i></div>
+      <h3 class="feat-cell-title" data-i18n="feat2_title">Real HDR Processing</h3>
+      <p class="feat-cell-desc" data-i18n="feat2_desc_home">Dynamic tone mapping brings out highlights and shadows for cinema-like results.</p>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-icon-wrap"><i class="fas fa-wind"></i></div>
+      <h3 class="feat-cell-title" data-i18n="feat3_title">Advanced Denoising</h3>
+      <p class="feat-cell-desc" data-i18n="feat3_desc_home">Remove grain and noise from low-light photos while preserving sharpness.</p>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-icon-wrap"><i class="fas fa-user-circle"></i></div>
+      <h3 class="feat-cell-title" data-i18n="feat4_title">Face Enhancement</h3>
+      <p class="feat-cell-desc" data-i18n="feat4_desc_home">Bilateral filtering and edge-preserving sharpening for natural skin and detail.</p>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-icon-wrap"><i class="fas fa-sliders-h"></i></div>
+      <h3 class="feat-cell-title" data-i18n="feat5_title">Full Color Control</h3>
+      <p class="feat-cell-desc" data-i18n="feat5_desc_home">Adjust exposure, contrast, saturation, and warmth with real-time CSS preview.</p>
+    </div>
+    <div class="feat-cell">
+      <div class="feat-icon-wrap"><i class="fas fa-lock"></i></div>
+      <h3 class="feat-cell-title" data-i18n="feat6_title">100% Private</h3>
+      <p class="feat-cell-desc" data-i18n="feat6_desc_home">All processing happens on your machine. No images ever leave your device.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ══════════════════════════════════════════ -->
+<section class="how-section-home">
+  <div class="section-header">
+    <div class="section-eyebrow" data-i18n="how_eyebrow">How It Works</div>
+    <h2 class="section-h2" data-i18n="how_h2_home">Three Steps to Stunning Photos</h2>
+  </div>
+
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-num-wrap">1</div>
+      <h3 class="step-title-h" data-i18n="step1_title_home">Upload Your Photo</h3>
+      <p class="step-desc-h"   data-i18n="step1_desc_home">Drag and drop any PNG, JPG, or WEBP image. Up to 2000px input.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num-wrap">2</div>
+      <h3 class="step-title-h" data-i18n="step2_title_home">Choose Enhancement</h3>
+      <p class="step-desc-h"   data-i18n="step2_desc_home">Select mode, scale, and color adjustments to match your vision.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num-wrap">3</div>
+      <h3 class="step-title-h" data-i18n="step3_title_home">Download Result</h3>
+      <p class="step-desc-h"   data-i18n="step3_desc_home">Get your enhanced JPEG at 95% quality — ready to share or print.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GALLERY ════════════════════════════════════════════════ -->
+<section class="gallery-section">
+  <div class="section-header">
+    <div class="section-eyebrow" data-i18n="gallery_eyebrow">Results</div>
+    <h2 class="section-h2" data-i18n="gallery_h2">Real Results for Every Use Case</h2>
+    <p class="section-sub" data-i18n="gallery_sub">From portraits to landscapes — PixelAI handles it all.</p>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="gallery-card">
+      <img src="../assets/images/portrait-colorful.webp" alt="Portrait Enhancement" loading="lazy">
+      <div class="gallery-card-overlay">
+        <span class="gallery-tag-badge" data-i18n="tag_portrait">Portrait</span>
+        <span class="gallery-lbl" data-i18n="lbl_portrait">Face & Skin Enhancement</span>
+      </div>
+    </div>
+    <div class="gallery-card">
+      <img src="../assets/images/portrait-tribal.webp" alt="Tribal Portrait" loading="lazy">
+      <div class="gallery-card-overlay">
+        <span class="gallery-tag-badge" data-i18n="tag_detail">Detail</span>
+        <span class="gallery-lbl" data-i18n="lbl_detail">Texture Recovery</span>
+      </div>
+    </div>
+    <div class="gallery-card">
+      <img src="../assets/images/hero2.webp" alt="Scene Enhancement" loading="lazy">
+      <div class="gallery-card-overlay">
+        <span class="gallery-tag-badge" data-i18n="tag_scene">Scene</span>
+        <span class="gallery-lbl" data-i18n="lbl_scene">Subject Sharpening</span>
+      </div>
+    </div>
+    <div class="gallery-card">
+      <img src="../assets/images/hero1.webp" alt="Restoration" loading="lazy">
+      <div class="gallery-card-overlay">
+        <span class="gallery-tag-badge" data-i18n="tag_restore">Restore</span>
+        <span class="gallery-lbl" data-i18n="lbl_restore">Old Photo Restoration</span>
+      </div>
+    </div>
+    <div class="gallery-card">
+      <img src="../assets/images/hero4.webp" alt="Close-up Enhancement" loading="lazy">
+      <div class="gallery-card-overlay">
+        <span class="gallery-tag-badge" data-i18n="tag_closeup">Close-up</span>
+        <span class="gallery-lbl" data-i18n="lbl_closeup">Macro Upscaling</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-cta-wrap">
+    <a href="/pages/enhance.html" class="btn-hero-primary">
+      <i class="fas fa-magic"></i>
+      <span data-i18n="gallery_cta">Try It Free Now</span>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS ══════════════════════════════════════════ -->
+<section class="testimonials-section">
+  <div class="section-header">
+    <div class="section-eyebrow" data-i18n="testi_eyebrow">Testimonials</div>
+    <h2 class="section-h2" data-i18n="testi_h2">Loved by Creators Worldwide</h2>
+  </div>
+
+  <div class="testimonials-grid-home">
+    <div class="tcard">
+      <div class="tcard-stars">★★★★★</div>
+      <p class="tcard-text">"PixelAI transformed my old vacation photos into stunning high-res masterpieces. The AI is incredibly intelligent and preserves every detail!"</p>
+      <div class="tcard-author">
+        <div class="tcard-avatar">S</div>
+        <div>
+          <p class="tcard-name">Sarah Johnson</p>
+          <p class="tcard-role">Photographer, NYC</p>
+        </div>
+      </div>
+    </div>
+    <div class="tcard">
+      <div class="tcard-stars">★★★★★</div>
+      <p class="tcard-text">"The face enhancement feature is mind-blowing. My portrait photography business has never looked better. Clients love the results!"</p>
+      <div class="tcard-author">
+        <div class="tcard-avatar">M</div>
+        <div>
+          <p class="tcard-name">Mohammed Al-Rashid</p>
+          <p class="tcard-role">Digital Artist, Dubai</p>
+        </div>
+      </div>
+    </div>
+    <div class="tcard">
+      <div class="tcard-stars">★★★★★</div>
+      <p class="tcard-text">"J'utilise PixelAI pour tous mes projets créatifs. La qualité est exceptionnelle et la vitesse de traitement est incroyable. Indispensable!"</p>
+      <div class="tcard-author">
+        <div class="tcard-avatar">C</div>
+        <div>
+          <p class="tcard-name">Claire Dubois</p>
+          <p class="tcard-role">Graphic Designer, Paris</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══════════════════════════════════════════════ -->
+<section class="pricing-section-home">
+  <div class="section-header">
+    <div class="section-eyebrow" data-i18n="pricing_eyebrow">Pricing</div>
+    <h2 class="section-h2" data-i18n="pricing_h2_home">Simple, Transparent Pricing</h2>
+    <p class="section-sub" data-i18n="pricing_sub_home">No subscriptions required. Pay once and own it forever.</p>
+  </div>
+
+  <div class="pricing-grid-home">
+    <!-- Free -->
+    <div class="pcard">
+      <p class="pcard-name" data-i18n="plan_free">Free</p>
+      <div class="pcard-price">
+        <span class="pcard-amount" data-i18n="plan_free_price">$0</span>
+      </div>
+      <p class="pcard-desc" data-i18n="plan_free_feat3">Perfect to get started</p>
+      <div class="pcard-divider"></div>
+      <ul class="pcard-features">
+        <li><i class="fas fa-check"></i><span data-i18n="plan_free_feat1">10 free images</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_free_feat2">2× and 4× upscaling</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_free_feat3">Standard quality</span></li>
+        <li class="locked"><i class="fas fa-times"></i><span data-i18n="plan_free_feat4_locked">Batch processing</span></li>
+      </ul>
+      <a href="/pages/register.html" class="pcard-btn pcard-btn-outline" data-i18n="btn_get_free">Get Started Free</a>
+    </div>
+
+    <!-- Pro -->
+    <div class="pcard featured">
+      <div class="pcard-badge" data-i18n="plan_lifetime_badge" style="background:linear-gradient(135deg,#f5c842,#e8a020)">Most Popular</div>
+      <p class="pcard-name" data-i18n="plan_pro">Pro</p>
+      <div class="pcard-price">
+        <span class="pcard-amount" data-i18n="plan_pro_price">$9.99</span>
+        <span class="pcard-period" data-i18n="plan_pro_period">/month</span>
+      </div>
+      <p class="pcard-desc">For serious creators</p>
+      <div class="pcard-divider"></div>
+      <ul class="pcard-features">
+        <li><i class="fas fa-check"></i><span data-i18n="plan_pro_feat1">100 images/month</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_pro_feat2">All AI models</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_pro_feat3">Priority processing</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_pro_feat4">Batch processing</span></li>
+      </ul>
+      <a href="/pages/register.html" class="pcard-btn pcard-btn-gold" data-i18n="btn_get_pro">Subscribe Now</a>
+    </div>
+
+    <!-- Lifetime -->
+    <div class="pcard">
+      <div class="pcard-badge" data-i18n="plan_lifetime_badge" style="background:linear-gradient(135deg,#fff,#ccc);color:#000;">Best Value</div>
+      <p class="pcard-name" data-i18n="plan_lifetime">Lifetime</p>
+      <div class="pcard-price">
+        <span class="pcard-amount" data-i18n="plan_lifetime_price">$49</span>
+      </div>
+      <p class="pcard-desc">Pay once, own forever</p>
+      <div class="pcard-divider"></div>
+      <ul class="pcard-features">
+        <li><i class="fas fa-check"></i><span data-i18n="plan_lifetime_feat1">Unlimited images</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_lifetime_feat2">All current & future features</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_lifetime_feat3">Gold support</span></li>
+        <li><i class="fas fa-check"></i><span data-i18n="plan_lifetime_feat4">Lifetime free updates</span></li>
+      </ul>
+      <a href="/pages/pricing.html" class="pcard-btn pcard-btn-outline" data-i18n="btn_get_lifetime">Buy Once</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ══════════════════════════════════════════════ -->
+<section class="final-cta">
+  <div class="final-cta-content">
+    <h2 class="final-cta-title" data-i18n="cta_title_home">Ready to Enhance Your Photos?</h2>
+    <p class="final-cta-sub" data-i18n="cta_sub_home">Join 50,000+ creators who trust PixelAI for professional results.</p>
+    <div class="final-cta-buttons">
+      <a href="/pages/enhance.html" class="btn-hero-primary">
+        <i class="fas fa-magic"></i>
+        <span data-i18n="cta_try_home">Start Free Trial</span>
+      </a>
+      <a href="/pages/pricing.html" class="btn-hero-outline">
+        <span data-i18n="cta_view_pricing">View Pricing</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div id="footer-container"></div>
+
+<script src="../js/translations.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/navbar.js"></script>
+<script src="../js/footer.js"></script>
+<script src="../js/content.js"></script>
+<script>
+  initTheme();
+  setLanguage(localStorage.getItem('pixelai_lang') || 'ar');
+  injectNavbar();
+  injectFooter();
+
+  // Hero background slideshow
+  (function() {
+    const slides = document.querySelectorAll('.home-hero-slide');
+    if (!slides.length) return;
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 5000);
+  })();
+
+  // Before / After demo slider
+  (function() {
+    const wrap   = document.getElementById('demoWrap');
+    const before = document.getElementById('demoBefore');
+    const handle = document.getElementById('demoHandle');
+    if (!wrap) return;
+
+    let dragging = false;
+    let pos = 50;
+
+    function setPos(pct) {
+      pct = Math.max(5, Math.min(95, pct));
+      pos = pct;
+      handle.style.left = pct + '%';
+      before.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+    }
+
+    setPos(50);
+
+    handle.addEventListener('mousedown',  () => dragging = true);
+    handle.addEventListener('touchstart', () => dragging = true, { passive: true });
+    wrap.addEventListener('click', e => {
+      const rect = wrap.getBoundingClientRect();
+      setPos(((e.clientX - rect.left) / rect.width) * 100);
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const rect = wrap.getBoundingClientRect();
+      setPos(((e.clientX - rect.left) / rect.width) * 100);
+    });
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const rect = wrap.getBoundingClientRect();
+      setPos(((e.touches[0].clientX - rect.left) / rect.width) * 100);
+    }, { passive: true });
+    document.addEventListener('mouseup',  () => dragging = false);
+    document.addEventListener('touchend', () => dragging = false);
+
+    // Auto-animate
+    let dir = -1;
+    setInterval(() => {
+      if (dragging) return;
+      pos += dir * 0.35;
+      if (pos <= 22) dir = 1;
+      if (pos >= 78) dir = -1;
+      setPos(pos);
+    }, 30);
+  })();
+</script>
+</body>
+</html>
